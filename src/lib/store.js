@@ -35,6 +35,9 @@ const persistConfig = {
         },
         initializeEmployees: (state, action) => {
             state.employees = action.payload
+        },
+        removeEmployee: (state, action)=>{
+          state.employees = action.payload
         }
       }
     })
@@ -76,7 +79,7 @@ const persistConfig = {
 const persistedEmployeeSlice = persistReducer(persistConfig, employeeSlice.reducer)
 
 // Export actions from the slice
-export const {createEmployee,initializeEmployees} = employeeSlice.actions
+export const {createEmployee,initializeEmployees,removeEmployee} = employeeSlice.actions
 export const {saveSearch} = searchSlice.actions
 export const {changeColumnIndex, changeNbEntries} = otherSlice.actions
 
