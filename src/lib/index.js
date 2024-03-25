@@ -1,1 +1,1 @@
-export { default as TableReact} from './CustomTableReact.js'
+export { default as TableReact} from './TableReact.js'

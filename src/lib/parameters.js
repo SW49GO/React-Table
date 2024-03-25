@@ -1,0 +1,16 @@
+export const styleTable = {
+                    containerTable:{tableLayout: 'fixed',width: '100%',borderCollapse: 'collapse'},
+                    thColumn:{fontSize:' 0.9rem'},
+                    tdColumn:{display: 'flex',justifyContent: 'space-between',padding: '0.5rem'},
+                    tdColumnSpan:{textAlign:'center'},
+                    iconColumn:{display: 'flex',flexDirection: 'column'},
+                    tdRow:{ boxSizing: 'content-box',overflow: 'hidden',textOverflow: 'ellipsis',whiteSpace: 'nowrap'},
+                    show:{ visibility: 'visible'},
+                    hidden:{display: 'none'},
+                    btnPages:{border:'none',backgroundColor: 'transparent'},
+                    nbPages:{border:'1px solid #000',borderRadius: '.3125rem',background: 'linear-gradient(to top,rgb(188, 189, 189, 0.6),rgb(254, 254, 254))',padding: '.25rem .625rem'},
+                    navContainerPage:{display: 'flex',justifyContent: 'space-between',width: '100%'},
+                    employeeSearch:{display: 'flex',justifyContent: 'space-between',width: '100%'},
+                    infosEmployee:{position: 'absolute',left:'20%',width: '16rem',padding: '0.5rem',fontSize: '1rem',backgroundColor: '#ededed',border:'1px solid #000',lineHeight: '0.5rem',zIndex: '3'},
+                    closeInfosEmployee:{ position:'relative', right: '-15.5rem',top: '-0.5rem'},
+                    removeEmployee:{position: 'relative',top:'0',right: '1.8rem'}}
