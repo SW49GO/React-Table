@@ -1,20 +1,20 @@
 export const styleTable = {
-    parentContainerTable:{ display: 'flex',flexDirection: 'column',alignItems: 'center',width: '90%',fontSize: '1rem',marginBottom: '4rem'},
-    employeeSearch:{display: 'flex',justifyContent: 'space-between',width: '100%',marginBottom:'1.5rem'},
-    containerTable:{tableLayout: 'fixed',width: '100%',borderCollapse: 'collapse'},
-    thColumn:{fontSize:' 0.9rem'},
+    parentContainerTable:{ display: 'flex',flexDirection: 'column',alignItems: 'center',width: '100%',fontSize: '1rem',marginBottom: '4rem'},
+    dataSearch:{display: 'flex',justifyContent: 'space-between',width: '100%',marginBottom:'1.5rem'},
+    containerTable:{tableLayout: 'fixed',width: '100%',borderCollapse: 'collapse', backgroundColor:'#fff', color:'#000'},
+    thColumn:{fontSize:'.8rem'},
     tdColumn:{display: 'flex',justifyContent: 'space-between',padding: '0.5rem'},
-    tdColumnSpan:{textAlign:'center'},
+    tdColumnSpan:{textAlign:'center', boxSizing: 'content-box',overflow: 'hidden',textOverflow: 'ellipsis',whiteSpace: 'wrap', fontSize:'0.8rem'},
     iconColumn:{display: 'flex',flexDirection: 'column'},
-    tdRow:{ boxSizing: 'content-box',overflow: 'hidden',textOverflow: 'ellipsis',whiteSpace: 'nowrap'},
+    tdRow:{ boxSizing: 'content-box',overflow: 'hidden',textOverflow: 'ellipsis',whiteSpace: 'nowrap', fontSize:'0.9rem'},
     show:{ visibility: 'visible'},
     hidden:{display: 'none'},
     btnPages:{border:'none',backgroundColor: 'transparent'},
     nbPages:{border:'1px solid #000',borderRadius: '.3125rem',background: 'linear-gradient(to top,rgb(188, 189, 189, 0.6),rgb(254, 254, 254))',padding: '.25rem .625rem'},
     navContainerPage:{display: 'flex',justifyContent: 'space-between',width: '100%', marginTop: '1.5rem'},
-    infosEmployee:{position: 'absolute',left:'20%',width: '16rem',padding: '0.5rem',fontSize: '1rem',backgroundColor: '#ededed',border:'1px solid #000',lineHeight: '0.5rem',zIndex: '3'},
-    closeInfosEmployee:{ position:'relative', right: '-15.5rem',top: '-0.5rem'},
-    removeEmployee:{position: 'relative',top:'0',right: '1.8rem'}}
+    infosRow:{position: 'absolute',left:'20%',width: '16rem',padding: '0.5rem',fontSize: '1rem',backgroundColor: '#ededed',border:'1px solid #000',lineHeight: '0.5rem',zIndex: '3'},
+    closeInfosRow:{ position:'relative', right: '-15.5rem',top: '-0.5rem'},
+    removeRow:{position: 'relative',top:'0',right: '1.8rem'}}
 
 /**
  * Function to sort the datas
@@ -23,7 +23,7 @@ export const styleTable = {
  * @param {string} sorts 
  * @returns {array} 
  */
-export function sortingEmployees(dataRows, dataColumns, index , sorts){
+export function sortingData(dataRows, dataColumns, index , sorts){
     // Retrieve the key by the index
     const filterColumn = Object.keys(dataRows[0])[index]
     const sorting = dataColumns[index].sort

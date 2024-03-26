@@ -1,118 +1,108 @@
 import React from "react"
-import { useState, useEffect } from "react"
-import { useDispatch, useSelector } from 'react-redux'
-import { selectTotalEmployees, selectEntries, selectTotalSearch, selectEmployees, selectColumn, changeNbEntries,  saveSearch, selectSearch, initializeEmployees, changeColumnIndex,removeEmployee } from "./store"
+import { useState, useEffect, useCallback } from "react"
 import { FaCaretUp, FaCaretDown, FaRegTrashAlt } from 'react-icons/fa'
 import * as parms from './parameters'
 import PropTypes from 'prop-types'
 
-function TableReact ({dataColumns, dataRows, dataEntries}){
-    const dispatch = useDispatch()
+function TableReact ({dataColumns, 
+                      dataRows, 
+                      dataEntries, 
+                      handleNbEntries, 
+                      handleResultSearch, 
+                      allowRemoveRow, 
+                      handleRemoveRow, 
+                      backGroundRows,
+                      customThead,
+                      customTbody,
+                      customContainer}){
 
     // Show Entries default array
     const defaultEntries = ['5','10','15','20','50','100']
     dataEntries = dataEntries ?? defaultEntries
 
-    const widthColumn = 100 / (dataColumns.length) + '%'
-
-    // Datas Table Pagination
-    let totalEmployees = parseInt(useSelector(selectTotalEmployees))
-    const totalSearch = useSelector(selectTotalSearch)
-    const nbEntries = parseInt(useSelector(selectEntries))
-
-    if (totalSearch>0){
-        totalEmployees = totalSearch
-    }
-    // Initialize Rows
-    if (totalEmployees === 0){
-      dispatch(initializeEmployees(dataRows))
-    }
+    // STATES
+    const [nbTotalRows, setNbTotalRows] = useState(0)
+    const [resultSearch, setResultSearch] = useState([])
+    const [nbEntries, setNbEntries] = useState(dataEntries[0])
     // States for Paging
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
+    // State Index Column
+    const [indexColumn, setIndexColumn] = useState(0)
+    // State for the search column
+    const [searchItem, setSearchItem] = useState(Object.keys(dataRows[0])[indexColumn])
+    console.log('searchItem:', searchItem)
+    // State status array for each Column initializing to null
+    const [isChoice, setIsChoice] = useState(new Array(dataColumns.length).fill(null))
+    // State for Index of selected rows to remove
+    const [removeData, setRemoveData]= useState(null)
+    // State to show datas of one row selected for media Mobile
+    const [showData, setShowData]= useState(null)
 
-    // Updating the total number of pages every time the data changes
-    useEffect(() => {
-    setTotalPages(Math.ceil(dataRows.length / (nbEntries)))
-    setCurrentPage(1)
-    }, [dataRows, nbEntries])
+    // Width of each columns
+    const widthColumn = 100 / dataColumns.length + '%'
 
-    /**
+     /**
      * Function to Retrieving data for the current page
      * @returns {array}
      */
-    const getCurrentPageData = () => {
-    const startIndex = parseInt(currentPage - 1) * parseInt(nbEntries)
-    const endIndex = parseInt(startIndex) + parseInt(nbEntries)
-    // Breaking down the data table
-    return dataRows.slice(startIndex, endIndex)
-    }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                            Show Entries and Input Search                                              //
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    const getCurrentPageData = useCallback(() => {
+        const startIndex = (currentPage - 1) * nbEntries
+        const endIndex = startIndex + nbEntries
+        return dataRows.slice(startIndex, endIndex)
+    }, [currentPage, nbEntries, dataRows])
 
-    // For the number of entries
-    const entriesSelected = useSelector(selectEntries)
-    const [selectedEntries, setSelectedEntries] = useState(entriesSelected)
+    useEffect(() => {
+        // Data for the Input Search
+        const totalRows = resultSearch.length > 0 ? resultSearch.length : dataRows.length
+        setNbTotalRows(totalRows)
+        setTotalPages(Math.ceil(totalRows / nbEntries))
+        setCurrentPage(1)
+    }, [dataRows, resultSearch, nbEntries])
+
+//  Manage Show Entries and Input Search
 
     const handleSelectChangeEntries = (event) => {
         const newValue = event.target.value
-        setSelectedEntries(newValue)
-        dispatch(changeNbEntries(newValue))
+        setNbEntries(newValue)
+        handleNbEntries(newValue)
     }
-    // For the Input Search
-    // Employees array
-    const allEmployees = useSelector(selectEmployees)
-    const filterColumn = useSelector(selectColumn)
 
-    // Retrieve result of a search
-    const resultSearch = useSelector(selectSearch)
-    dataRows = resultSearch.length>0 ? resultSearch:allEmployees
+    const handleInputChange = useCallback((e) => {
+        const inputSearch = e.target.value.toLowerCase()
+        const result = dataRows.filter((item) => item[searchItem].toLowerCase().startsWith(inputSearch))
+        setResultSearch(result)
+        handleResultSearch(result)
+    }, [dataRows, searchItem, handleResultSearch])
 
-    // Definition of the search column
-    const searchItem = Object.keys(allEmployees[0])[filterColumn]
-         
-     /**
-      * Function to search word in the column selected
-      * @param {object} e 
-      */
-         const handleInputChange=(e)=>{
-             const inputSearch = e.target.value.toLowerCase()
-             const result = allEmployees.filter((item)=> item[searchItem].toLowerCase().startsWith(inputSearch))
-             // Store the result
-             dispatch(saveSearch(result))
-         }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                  Manage table columns                                                 //
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//   Manage table columns
 
     // Style thead columns
     const mergedStyleColumns = {
         ...parms.styleTable.thColumn,
-        width: widthColumn
+        width: widthColumn,
+        ...customThead
     }
-
-    // Status array for each column initializing to null
-    const [isChoice, setIsChoice] = useState(new Array(dataColumns.length).fill(null))
 
     /**
      * Function to initialize functions and states when clicked on column
      * @param {number} index (the column clicked)
      */
     const toggleIcon = (index) => {
-    dispatch(changeColumnIndex(index))
+        setIndexColumn(index)
+        setSearchItem(Object.keys(dataRows[0])[index])
 
-    // Upgrade [isChoice] for the clicked column
-    setIsChoice((prevChoices) =>
-        prevChoices.map((prevChoice, i) =>
-        i === index ? (prevChoice === null ? true : !prevChoice) : false
+        // Upgrade [isChoice] for the clicked column
+        setIsChoice((prevChoices) =>
+            prevChoices.map((prevChoice, i) =>
+            i === index ? (prevChoice === null ? true : !prevChoice) : false
+            )
         )
-    )
-    // Upgrade [isChoice] for the others columns
-    setIsChoice((prevChoices) =>
-        prevChoices.map((prevChoice, i) =>
-        i !== index ? null : prevChoice
-        )
+        // Upgrade [isChoice] for the others columns
+        setIsChoice((prevChoices) =>
+            prevChoices.map((prevChoice, i) =>
+            i !== index ? null : prevChoice
+            )
     )
     // Call function with column index 
         functionExecuted(index)
@@ -131,33 +121,21 @@ function TableReact ({dataColumns, dataRows, dataEntries}){
     }
     }
 
-    // Array ti received datas after sorting
+    // Array to received datas after sorting
     let newData=[]
 
     const handleClickUp = (index) => {
-    newData = parms.sortingEmployees(dataRows, dataColumns, index, 'asc')
-    dispatch(saveSearch(newData))
+        newData = parms.sortingData(dataRows, dataColumns, index, 'asc')
+        setResultSearch(newData) 
     }
 
     const handleClickDown = (index) => {
-    newData = parms.sortingEmployees(dataRows, dataColumns , index, 'desc')
-    dispatch(saveSearch(newData))
+        newData = parms.sortingData(dataRows, dataColumns , index, 'desc')
+        setResultSearch(newData)
     }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                  Manage table rows                                                    //
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    const backgroundRow='141, 141, 141'
-    const indexColumn = useSelector(selectColumn)
 
-    // For DEV : Initialization used delete an employee
-    const removeDev = false
-
-    // Index of selected employee to remove
-    const [removeEmployeeList, setRemoveEmployeeList]= useState(null)
-
-    const employees = useSelector(selectEmployees)
-    // State to show datas of one employee on media Mobile
-    const [showData, setShowData]= useState(null)
+//  Manage table rows  
+    const backgroundRow = backGroundRows ?? '141, 141, 141'
 
     /**
      * Function to allow delete an employee for Dev
@@ -166,7 +144,7 @@ function TableReact ({dataColumns, dataRows, dataEntries}){
      * @param {*} event 
      */
     const handleClickRow=(index, event)=>{
-        setRemoveEmployeeList(index)
+        setRemoveData(index)
         const screenWidth = window.innerWidth
         if (screenWidth <= 768) {
         setShowData(index)
@@ -181,24 +159,22 @@ function TableReact ({dataColumns, dataRows, dataEntries}){
      * @param {number} index 
      */
     const handleRemoveEmployee=(index)=>{
-    if(removeDev){
-    const selectedEmployee = getCurrentPageData()[index]
-    const copyEmployee = [...employees]
-    const currentEmployee = copyEmployee.findIndex(employee =>{
-    return employee.firstName === selectedEmployee.firstName && employee.lastName === selectedEmployee.lastName && employee.city === selectedEmployee.city
-    })
-    if(currentEmployee !== -1){
-    copyEmployee.splice(parseInt(currentEmployee), 1)
-    dispatch(removeEmployee(copyEmployee))
-    }
-    }
+        if(allowRemoveRow){
+        const selectedRow = getCurrentPageData()[index]
+        const copyData = [...dataRows]
+        const currentData = copyData.findIndex(item =>{
+            const nbKeys = Object.keys(item)
+            return (nbKeys>1 ? item[Object.keys(item)[0]] === selectedRow[Object.keys(selectedRow)[0]] && item[Object.keys(item)[1]] === selectedRow[Object.keys(selectedRow)[1]] && item[Object.keys(item)[2]] === selectedRow[Object.keys(selectedRow)[2]]: item[Object.keys(item)[0]] === selectedRow[Object.keys(selectedRow)[0]] && item[Object.keys(item)[1]] === selectedRow[Object.keys(selectedRow)[1]])
+        })
+            if(currentData !== -1){
+            handleRemoveRow(copyData[currentData], currentData)
+            copyData.splice(parseInt(currentData), 1)
+            }
+        }
     }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                  Manage table paging                                                  //
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-     //Function to manage paging
+//  Manage table paging  
+   
      const handlePrevPage = () => {
         if (currentPage > 1) {
           setCurrentPage(currentPage - 1)
@@ -213,11 +189,12 @@ function TableReact ({dataColumns, dataRows, dataEntries}){
     // If the key value number matches the column number
     if(dataColumns.length > 0 && dataColumns.length === Object.keys(dataRows[0]).length && dataRows.length > 0){
         return(
-        <div style={parms.styleTable.parentContainerTable}>
-            <div style={parms.styleTable.employeeSearch}>
+        <div style={{...parms.styleTable.parentContainerTable,...customContainer}}>
+            {/* SHOW - SEARCH */}
+            <div style={parms.styleTable.dataSearch}>
                 <div>
                     <span>Show </span>
-                    <select aria-label="Show entries" name="selectNbEntries" value={selectedEntries} onChange={handleSelectChangeEntries} data-testid="selectNbEntries">
+                    <select aria-label="Show entries" name="selectNbEntries" value={nbEntries} onChange={handleSelectChangeEntries} data-testid="selectNbEntries">
                         {dataEntries.map((item,index)=>(
                         <option key={index} >{item}</option>
                         ))}
@@ -228,6 +205,7 @@ function TableReact ({dataColumns, dataRows, dataEntries}){
                 Search: <input style= {{width:'6rem'}} id="inputSearch" type="search" name="search"  onChange={handleInputChange} data-testid="inputSearch"/>
                 </div>
             </div>
+            {/* TABLE */}
             <table style={parms.styleTable.containerTable}>
                 <thead>
                     <tr>
@@ -245,7 +223,7 @@ function TableReact ({dataColumns, dataRows, dataEntries}){
                         ))}
                     </tr>
                 </thead>
-                <tbody>
+                <tbody style={customTbody}>
                     {getCurrentPageData().map((item, index) => (
                         <tr
                         key={index}
@@ -256,11 +234,11 @@ function TableReact ({dataColumns, dataRows, dataEntries}){
                         }}
                         onMouseOver={(event) => {
                             event.target.parentElement.style.backgroundColor = `rgba(${backgroundRow}, 1)`
-                            setRemoveEmployeeList(index)
+                            setRemoveData(index)
                         }}
                         onMouseOut={(event) => {
                             event.target.parentElement.style.backgroundColor = index % 2 === 0 ? `rgba(${backgroundRow}, 0.4)` : `rgba(${backgroundRow}, 0.2)`
-                            setRemoveEmployeeList(null)
+                            setRemoveData(null)
                         }}
                         onClick={(event)=>{handleClickRow(index,event)}}
                         >
@@ -279,8 +257,8 @@ function TableReact ({dataColumns, dataRows, dataEntries}){
                         ))}
                         {showData === index && (
                             <td colSpan={Object.keys(item).length} >
-                                <div style={parms.styleTable.infosEmployee}>
-                                    <p style={parms.styleTable.closeInfosEmployee}  onClick={(event) => {event.stopPropagation(); setShowData(null)}}>X</p>
+                                <div style={parms.styleTable.infosRow}>
+                                    <p style={parms.styleTable.closeInfosRow}  onClick={(event) => {event.stopPropagation(); setShowData(null)}}>X</p>
                                     {/* <p>Employee : {item.firstName} {item.lastName}</p>
                                     <p>Dates : S:{item.startDate} B:{item.dateOfBirth}</p>
                                     <p>Department: {item.department}</p>
@@ -290,8 +268,8 @@ function TableReact ({dataColumns, dataRows, dataEntries}){
                                 </div>
                             </td>
                         )}
-                        {removeEmployeeList === index && removeDev === true &&(
-                        <td style={parms.styleTable.removeEmployee} onClick={()=>handleRemoveEmployee(index)}><FaRegTrashAlt/></td>
+                        {removeData === index && allowRemoveRow === true &&(
+                        <td style={parms.styleTable.removeRow} onClick={()=>handleRemoveEmployee(index)}><FaRegTrashAlt/></td>
                         )}
                         </tr>
                     ))}
@@ -300,8 +278,9 @@ function TableReact ({dataColumns, dataRows, dataEntries}){
             </table>
             <div style={parms.styleTable.navContainerPage}>
                 <div>
-                Showing {((currentPage - 1) * nbEntries) + 1} to {Math.min(currentPage * nbEntries, totalEmployees)} of {totalEmployees}
+                Showing {((currentPage - 1) * nbEntries) + 1} to {Math.min(currentPage * nbEntries, nbTotalRows)} of {nbTotalRows}
                 </div>
+                {/* PAGING */}
                 <div>
                     <button style={parms.styleTable.btnPages} onClick={handlePrevPage}>Preview</button>
                     <span style={parms.styleTable.nbPages}>{currentPage}</span>
