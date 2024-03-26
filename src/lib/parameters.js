@@ -6,15 +6,17 @@ export const styleTable = {
     tdColumn:{display: 'flex',justifyContent: 'space-between',padding: '0.5rem'},
     tdColumnSpan:{textAlign:'center', boxSizing: 'content-box',overflow: 'hidden',textOverflow: 'ellipsis',whiteSpace: 'wrap', fontSize:'0.8rem'},
     iconColumn:{display: 'flex',flexDirection: 'column'},
-    tdRow:{ boxSizing: 'content-box',overflow: 'hidden',textOverflow: 'ellipsis',whiteSpace: 'nowrap', fontSize:'0.9rem'},
+    tdRow:{ boxSizing: 'content-box',overflow: 'hidden',textOverflow: 'ellipsis',whiteSpace: 'nowrap', fontSize:'0.9rem', padding:'.3rem'},
     show:{ visibility: 'visible'},
     hidden:{display: 'none'},
-    btnPages:{border:'none',backgroundColor: 'transparent'},
+    btnPages:{border:'none',backgroundColor: 'transparent', color:"#000"},
     nbPages:{border:'1px solid #000',borderRadius: '.3125rem',background: 'linear-gradient(to top,rgb(188, 189, 189, 0.6),rgb(254, 254, 254))',padding: '.25rem .625rem'},
     navContainerPage:{display: 'flex',justifyContent: 'space-between',width: '100%', marginTop: '1.5rem'},
-    infosRow:{position: 'absolute',left:'20%',width: '16rem',padding: '0.5rem',fontSize: '1rem',backgroundColor: '#ededed',border:'1px solid #000',lineHeight: '0.5rem',zIndex: '3'},
-    closeInfosRow:{ position:'relative', right: '-15.5rem',top: '-0.5rem'},
-    removeRow:{position: 'relative',top:'0',right: '1.8rem'}}
+    infosRow:{position: 'absolute',padding: '1rem',fontSize: '1rem',backgroundColor: '#ededed',border:'1px solid #000',lineHeight: '0.5rem',zIndex: '3',top: '50%' ,left: '50%' ,transform: 'translate(-50%, -50%)'},
+    closeInfosRow:{ position:'relative', right: '0rem',top: '-1rem'},
+    removeRow:{position: 'relative',top:'0',right: '1.8rem'},
+    error:{margin:'5rem'}
+}
 
 /**
  * Function to sort the datas
@@ -27,7 +29,6 @@ export function sortingData(dataRows, dataColumns, index , sorts){
     // Retrieve the key by the index
     const filterColumn = Object.keys(dataRows[0])[index]
     const sorting = dataColumns[index].sort
-    console.log('sorting:', sorting)
     const newData = [...dataRows]
 
     if (sorts==='asc'){
@@ -65,4 +66,28 @@ export function sortingData(dataRows, dataColumns, index , sorts){
 export function convertStringToDate(dateString) {
     const [day, month, year] = dateString.split('/');
     return new Date(year, month - 1, day);
+}
+
+/**
+ * Function to checks word and pass first letter to uppercase
+ * @param {string} word 
+ * @returns {string} 
+ */
+export function useUpperCaseFistLetter(word){
+    // Check the word or multiple words
+    if (word && typeof word === 'string' && word.trim().length > 0) {
+        // Use space to separate word
+        const words = word.trim().split(/\s+/)
+
+        const capitalizedWords = words.map((w, index) => {
+            // Capitalize the first word only
+            if (index === 0 && /^[A-Za-z]+$/.test(w)) {
+                return w.charAt(0).toUpperCase() + w.slice(1)
+            } else {
+                return w
+            }
+        })
+        // Return all words
+        return capitalizedWords.join(' ')
+    } 
 }

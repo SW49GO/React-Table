@@ -1,70 +1,98 @@
-# Getting Started with Create React App
+# Table React components created using `create-react-app` by SW49GO
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Presentation :
+This is a reusable React component that allows you to display a custom Table in your application.
 
-## Available Scripts
+The component is TypeScript compatible and includes a type definition file (TableReact.d.ts) for an improved development experience. In a TypeScript project, the TypeScript compiler will automatically use this definition file.
 
-In the project directory, you can run:
+### Examples Custom style :
+<img src="https://raw.githubusercontent.com/SW49GO/React-Table/master/public/assets/example.jpg" alt="datepicker"/>
 
-### `npm start`
+## Installing the package in your project:
+```bash
+npm i table-react-sw49go
+```
+## Prerequisites :
+- Node.js v18.16.0
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Dependencies to install :
+- "react": "^18.2.0"
+- "react-dom": "^18.2.0"
+- "prop-types": "^15.8.1"
+- "react-icons": "^5.0.1"
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Format of data :
+```
+// key 'name' for title thead & 'sort' initialize the expected behavior of sorting data, REQUIRED
+// AZ : alphanumeric
+// NUM : number
+// DATE: format date dd/mm/yyyy 
 
-### `npm test`
+    const columns = [
+        {name:'Fruits',sort:'AZ'},
+        {name:'Flowers',sort:'AZ'}, 
+        {name:'Date d\'achat',sort:'DATE'},
+        {name:'Price',sort:'NUM'}
+    ]
+    const data =[
+        { fruit: 'Banane', flower:'Tulipe', date:'10/02/2024', price:10},
+        { fruit: 'Orange', flower:'Rose', date:'07/01/2024', price:25}]
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+// Number entries NOT REQUIRED, default is :
 
-### `npm run build`
+    const entries = ['5','10','15','20','50','100']
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Imported the component into your project :
+```
+import { TableReact} from 'table-react-sw49go'
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+// IMPORT YOUR DATA
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+function App(){
 
-### `npm run eject`
+// Function to retrieve number of entries selected
+    const handleNbEntries=(nbEntries)=>{
+        console.log('nbEntries:', nbEntries)
+    }
+// Function to retrieve search generated object
+    const handleResultSearch= (result)=>{
+        console.log('result:', result)
+    }
+// Function to retrieve the row selected 'to be remove or other' and his index if allowRemoveRow be 'true'
+    const handleRemoveRow= (objRemove, index)=>{
+        console.log('index:', index)
+        console.log('objRemove:', objRemove)
+    }
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+    return (
+        <div>
+            <TableReact dataColumns={columns}
+                        dataAllRows={data}
+                        handleNbEntries={handleNbEntries}
+                        handleResultSearch={handleResultSearch}
+                        handleRemoveRow={handleRemoveRow}
+                        allowRemoveRow={true}
+                        customThead={{backgroundColor:'#1a2e91', color:'#00f2ff'}}
+                        backGroundRows={'101, 201, 237'}
+                        customContainer={{border:'1px solid black', borderRadius:'1rem', backgroundColor:'blue',padding:'1rem', color:"#fff"}}
+                       />
+        </div>
+    )
+}
+export default App
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+# Using the different component options (Props):
+- dataColumns (array) : data to be display in table head - REQUIRED
+- dataAllRows (array) : data to be display in table body - REQUIRED
+- dataEntries (array) : data to be in the selected show entries 
+- handleNbEntries (function) : callback function to retrieve number of entries selected 
+- handleResultSearch (function) : callback function to retrieve search generated object 
+- handleRemoveRow (function) : callback function to retrieve the row selected 'to be remove or other' and his index if allowRemoveRow be 'true'
+- allowRemoveRow (boolean) : allow retrieve the object selected
+- backGroundRows (string) : the RGB color of background rows
+- customThead (object) :  CssProperties to custom thead of table
+- customTbody (object) :  CssProperties to custom tbody of table
+- customContainer (object) :  CssProperties to custom the container with all parts
+- customModalInfos (object) :  CssProperties to custom infos when click on data in window < 768px

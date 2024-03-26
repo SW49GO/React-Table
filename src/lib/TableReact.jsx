@@ -5,7 +5,7 @@ import * as parms from './parameters'
 import PropTypes from 'prop-types'
 
 function TableReact ({dataColumns, 
-                      dataRows, 
+                      dataAllRows, 
                       dataEntries, 
                       handleNbEntries, 
                       handleResultSearch, 
@@ -14,13 +14,15 @@ function TableReact ({dataColumns,
                       backGroundRows,
                       customThead,
                       customTbody,
-                      customContainer}){
+                      customContainer,
+                      customModalInfos}){
 
     // Show Entries default array
     const defaultEntries = ['5','10','15','20','50','100']
     dataEntries = dataEntries ?? defaultEntries
 
     // STATES
+    const [dataRows, setDataRows]= useState(dataAllRows)
     const [nbTotalRows, setNbTotalRows] = useState(0)
     const [resultSearch, setResultSearch] = useState([])
     const [nbEntries, setNbEntries] = useState(dataEntries[0])
@@ -31,7 +33,6 @@ function TableReact ({dataColumns,
     const [indexColumn, setIndexColumn] = useState(0)
     // State for the search column
     const [searchItem, setSearchItem] = useState(Object.keys(dataRows[0])[indexColumn])
-    console.log('searchItem:', searchItem)
     // State status array for each Column initializing to null
     const [isChoice, setIsChoice] = useState(new Array(dataColumns.length).fill(null))
     // State for Index of selected rows to remove
@@ -53,12 +54,16 @@ function TableReact ({dataColumns,
     }, [currentPage, nbEntries, dataRows])
 
     useEffect(() => {
-        // Data for the Input Search
         const totalRows = resultSearch.length > 0 ? resultSearch.length : dataRows.length
         setNbTotalRows(totalRows)
         setTotalPages(Math.ceil(totalRows / nbEntries))
         setCurrentPage(1)
-    }, [dataRows, resultSearch, nbEntries])
+        if (resultSearch.length > 0 ){
+            setDataRows(resultSearch)
+        }else{
+            setDataRows(dataAllRows)
+        }
+    }, [dataRows, resultSearch, nbEntries,dataAllRows])
 
 //  Manage Show Entries and Input Search
 
@@ -70,10 +75,15 @@ function TableReact ({dataColumns,
 
     const handleInputChange = useCallback((e) => {
         const inputSearch = e.target.value.toLowerCase()
+        if(inputSearch === ''){
+            setResultSearch(dataAllRows)
+        }else{
+        // Data for the Input Search
         const result = dataRows.filter((item) => item[searchItem].toLowerCase().startsWith(inputSearch))
         setResultSearch(result)
         handleResultSearch(result)
-    }, [dataRows, searchItem, handleResultSearch])
+        }
+    }, [dataRows, searchItem, handleResultSearch, dataAllRows])
 
 //   Manage table columns
 
@@ -138,8 +148,8 @@ function TableReact ({dataColumns,
     const backgroundRow = backGroundRows ?? '141, 141, 141'
 
     /**
-     * Function to allow delete an employee for Dev
-     * or function to show Employee informations under media querie <=768px
+     * Function to allow delete a row
+     * and function to show row informations under media querie <=768px
      * @param {number} index 
      * @param {*} event 
      */
@@ -155,10 +165,10 @@ function TableReact ({dataColumns,
     }
 
     /**
-     * Function to remove an employee
+     * Function to remove a row
      * @param {number} index 
      */
-    const handleRemoveEmployee=(index)=>{
+    const handleRemoveOneRow=(index)=>{
         if(allowRemoveRow){
         const selectedRow = getCurrentPageData()[index]
         const copyData = [...dataRows]
@@ -185,6 +195,7 @@ function TableReact ({dataColumns,
           setCurrentPage(currentPage + 1)
         }
       }
+
 
     // If the key value number matches the column number
     if(dataColumns.length > 0 && dataColumns.length === Object.keys(dataRows[0]).length && dataRows.length > 0){
@@ -257,19 +268,18 @@ function TableReact ({dataColumns,
                         ))}
                         {showData === index && (
                             <td colSpan={Object.keys(item).length} >
-                                <div style={parms.styleTable.infosRow}>
+                                <div style={{...parms.styleTable.infosRow, ...customModalInfos}}>
                                     <p style={parms.styleTable.closeInfosRow}  onClick={(event) => {event.stopPropagation(); setShowData(null)}}>X</p>
-                                    {/* <p>Employee : {item.firstName} {item.lastName}</p>
-                                    <p>Dates : S:{item.startDate} B:{item.dateOfBirth}</p>
-                                    <p>Department: {item.department}</p>
-                                    <p>Adresses: {item.street} </p>
-                                    <p>&emsp;&emsp; {item.zipCode} {item.city}</p>
-                                    <p>State: {states.find(state => state.abbreviation === item.states)?.name} </p> */}
+                                    {Object.keys(dataRows[index]).map((key) => (
+                                                <p key={key}>
+                                                    {parms.useUpperCaseFistLetter(key)} : {item[key]}
+                                                </p>
+                                            ))}
                                 </div>
                             </td>
                         )}
                         {removeData === index && allowRemoveRow === true &&(
-                        <td style={parms.styleTable.removeRow} onClick={()=>handleRemoveEmployee(index)}><FaRegTrashAlt/></td>
+                        <td style={parms.styleTable.removeRow} onClick={()=>handleRemoveOneRow(index)}><FaRegTrashAlt/></td>
                         )}
                         </tr>
                     ))}
@@ -282,23 +292,30 @@ function TableReact ({dataColumns,
                 </div>
                 {/* PAGING */}
                 <div>
-                    <button style={parms.styleTable.btnPages} onClick={handlePrevPage}>Preview</button>
+                    <button style={{...parms.styleTable.btnPages, color: customContainer?.color ?? parms.styleTable.btnPages.color}} onClick={handlePrevPage}>Preview</button>
                     <span style={parms.styleTable.nbPages}>{currentPage}</span>
-                    <button style={parms.styleTable.btnPages} onClick={handleNextPage}>Next</button>
+                    <button style={{...parms.styleTable.btnPages, color: customContainer?.color ?? parms.styleTable.btnPages.color}} onClick={handleNextPage}>Next</button>
                 </div>
             </div>
         </div>)
     }else{
         return(
-            <div>NO DATA TO SHOW</div>
+            <div style={parms.styleTable.error}>OUPSSSS....there's a problem with your data !</div>
         )
     }
 }
 TableReact.propTypes = {
     dataColumns: PropTypes.array.isRequired,
-    dataRows: PropTypes.array.isRequired,
-    dataEntries: PropTypes.array
+    dataAllRows: PropTypes.array.isRequired,
+    dataEntries: PropTypes.array,
+    handleNbEntries: PropTypes.func,
+    handleResultSearch: PropTypes.func,
+    handleRemoveRow: PropTypes.func,
+    allowRemoveRow: PropTypes.bool,
+    backGroundRows: PropTypes.string,
+    customThead: PropTypes.object,
+    customTbody: PropTypes.object,
+    customContainer: PropTypes.object,
+    customModalInfos: PropTypes.object
   }
-
-
 export default TableReact
