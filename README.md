@@ -61,17 +61,17 @@ import { TableReact } from 'table-react-sw49go'
 
 function App(){
 
-// Function to retrieve number of entries selected
+// Function to retrieve number of entries selected - REQUIRED
     const handleNbEntries=(nbEntries)=>{
         console.log('nbEntries:', nbEntries)
     }
 
-// Function to retrieve search generated object
+// Function to retrieve search generated object - REQUIRED
     const handleResultSearch= (result)=>{
         console.log('result:', result)
     }
 
-// Function to retrieve the row selected 'to be remove or other' and his index if 'allowRemoveRow' be 'true'
+// Function to retrieve the row selected 'to be remove or other' and his index (REQUIRED if 'allowRemoveRow' be 'true')
     const handleRemoveRow= (objRemove, index)=>{
         console.log('index:', index)
         console.log('objRemove:', objRemove)
